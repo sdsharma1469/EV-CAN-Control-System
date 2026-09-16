@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Run C++ unit tests
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Run end-to-end fault scenarios
+        run: python3 tools/fault_injection.py --binary ./build/ev_can_sim
